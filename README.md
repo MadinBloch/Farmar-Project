@@ -1,6 +1,8 @@
 # Haasil
 
-A transparent marketplace that helps farmers find the best buyer for their produce by calculating **expected net realisation** — what actually reaches their pocket — instead of just showing raw market prices.
+Haasil is a premium market-linkage prototype for farmers, FPOs, and produce buyers. It combines nearby price discovery, transparent offers, lot matching, logistics, settlement tracking, and mock AI guidance in one workflow.
+
+The app supports Supabase authentication and marketplace persistence when environment variables are configured. Without Supabase credentials it remains usable in demo mode with local mock data.
 
 ## Prerequisites
 
@@ -19,7 +21,7 @@ npm -v
 1. **Clone or open the project**
 
    ```bash
-   cd FarmerProject
+   cd Farmar-Project
    ```
 
 2. **Install dependencies**
@@ -38,6 +40,16 @@ npm -v
 
    Visit the URL Vite prints in the terminal (usually [http://localhost:5173](http://localhost:5173)).
 
+## Supabase setup
+
+1. Create a Supabase project.
+2. Open the SQL editor and run [`supabase/schema.sql`](supabase/schema.sql).
+3. Copy [`.env.example`](.env.example) to `.env.local`.
+4. Fill in `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` from the Supabase project settings.
+5. Restart the Vite server.
+
+The database stores profiles, farmer lots, buyer offers, and market prices. The browser only uses the public Supabase anon key; row-level security policies in the schema protect writes by user role.
+
 ## Other commands
 
 | Command | Description |
@@ -46,16 +58,34 @@ npm -v
 | `npm run build` | Build production assets into `dist/` |
 | `npm run preview` | Preview the production build locally |
 
+## Product flows
+
+Choose a role from the opening screen:
+
+- **Farmer / FPO:** compare mandi and buyer prices, create produce lots, review offers, view logistics and settlement status, and ask the market assistant for sale-window guidance.
+- **Buyer:** filter available lots by crop, grade, volume, radius, and readiness; review demand-ranked matches; create digital offers; combine nearby supply; and track payment commitments.
+- **Supabase layer:** persists profiles and farmer lots, with tables ready for offers and market prices.
+- **Mock AI layer:** provides deterministic sale-window forecasts, demand-match scoring, and natural-language answers from local mock data. These functions are ready to be replaced with backend or model APIs.
+
 ## Project structure
 
 ```
-FarmerProject/
-├── public/          # Static assets (favicon)
+Farmar-Project/
+├── public/          # Static assets
 ├── src/
-│   ├── App.jsx      # Landing page
-│   ├── index.css    # Styles
-│   └── main.jsx     # React entry
+│   ├── App.jsx      # Landing, auth, farmer dashboard, buyer dashboard, and mock intelligence
+│   ├── index.css    # Theme, responsive layout, dashboard components, and states
+│   ├── lib/         # Supabase client and marketplace data-access functions
+│   └── main.jsx     # React entry point
+├── supabase/
+│   └── schema.sql   # Tables and row-level security policies
 ├── index.html
 ├── package.json
 └── vite.config.js
 ```
+
+## Current implementation notes
+
+- Demo mode is local to the browser session when Supabase is not configured.
+- With Supabase configured, authentication and farmer lot creation/loading are persisted remotely.
+- `npm run build` is the quickest production validation command.
