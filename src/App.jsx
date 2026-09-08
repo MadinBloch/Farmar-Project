@@ -1,5 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import * as THREE from 'three'
+import PriceCompareChart from './components/charts/PriceCompareChart'
+import InteractiveMarketScene from './components/landing/InteractiveMarketScene'
+import LandingFooter from './components/landing/LandingFooter'
+import LandingHeroPanel from './components/landing/LandingHeroPanel'
+import LandingPriceGraph from './components/landing/LandingPriceGraph'
+import { calcEnr } from './lib/enr'
 import { createLot, createOffer, createProfile, getLots, getMarketPrices, getOffers, isSupabaseConfigured, signIn, signUp } from './lib/marketplaceApi'
 
 const languageOptions = [
@@ -678,6 +683,7 @@ function FarmerDashboard({ lots, setLots, setSelectedRole, language, setLanguage
 
         <nav className="topnav" aria-label="Dashboard navigation">
           <a href="#overview">{copy.overview}</a>
+          <a href="#intelligence">ENR / 3D</a>
           <a href="#prices">{copy.prices}</a>
           <a href="#lots">{copy.myLots}</a>
           <a href="#offers">{copy.offers}</a>
@@ -721,6 +727,12 @@ function FarmerDashboard({ lots, setLots, setSelectedRole, language, setLanguage
           <StatCard label={copy.bestOffer} value={currency(2680)} detail={copy.processorOffer} tone="green" />
           <StatCard label={copy.expectedGain} value={`+${currency(135)}`} detail={copy.heldDays} tone="soft" />
           <StatCard label={copy.liveLots} value={String(lots.length)} detail={copy.acrossFarm} tone="neutral" />
+        </section>
+
+        <section className="charts-showcase" id="intelligence">
+          <Reveal delay={40} className="panel chart-panel">
+            <PriceCompareChart />
+          </Reveal>
         </section>
 
         <section className="content-grid" id="prices">
@@ -885,7 +897,14 @@ function FarmerDashboard({ lots, setLots, setSelectedRole, language, setLanguage
             </div>
 
             <div className="offer-list">
-              {lotOffers.map((offer) => (
+              {lotOffers.map((offer) => {
+                const net = calcEnr({
+                  price: offer.price,
+                  transport: offer.transport,
+                  storage: offer.storage,
+                  paymentRisk: offer.payment === 'Immediate' ? 10 : offer.payment === '7 days' ? 25 : 45,
+                })
+                return (
                 <div key={offer.id} className="offer-card">
                   <div className="offer-head">
                     <div>
@@ -896,6 +915,10 @@ function FarmerDashboard({ lots, setLots, setSelectedRole, language, setLanguage
                   </div>
 
                   <div className="offer-amount">{currency(offer.price)}/qtl</div>
+                  <div className="offer-enr">
+                    <span>Expected net</span>
+                    <strong>{currency(net)}/qtl</strong>
+                  </div>
 
                   <div className="offer-grid">
                     <span>Transport</span>
@@ -915,7 +938,8 @@ function FarmerDashboard({ lots, setLots, setSelectedRole, language, setLanguage
                     <button type="button" className="primary-btn compact" onClick={() => setAcceptedOffer(offer.id)}>{acceptedOffer === offer.id ? copy.accepted : copy.accept}</button>
                   </div>
                 </div>
-              ))}
+                )
+              })}
             </div>
           </Reveal>
 
@@ -1427,19 +1451,134 @@ function AuthModal({ language, setSelectedRole, onAuthenticated, onClose, initia
 function ExploreModal({ language, setSelectedRole, onClose }) {
   const copy = dashboardCopy[language]
   return (
-    <div className="login-backdrop" role="dialog" aria-modal="true" aria-label="Explore Farmly">
+    <div className="login-backdrop explore-backdrop" role="dialog" aria-modal="true" aria-label="Explore Farmly">
       <div className="login-modal explore-modal">
         <button type="button" className="modal-close" onClick={onClose} aria-label="Close explorer">×</button>
         <p className="eyebrow accent">{copy.marketLinkages}</p>
         <h2>Choose your marketplace view.</h2>
         <p className="login-subtitle">Explore a role-based demo now. You can register when you are ready to keep your workspace.</p>
         <div className="explore-role-grid">
-          <button type="button" onClick={() => setSelectedRole('farmer')}><strong>{copy.farmerRole}</strong><span>Prices, lots, offers, and sale windows</span><b>↗</b></button>
-          <button type="button" onClick={() => setSelectedRole('buyer')}><strong>{copy.buyerRole}</strong><span>Verified supply, matching, and procurement</span><b>↗</b></button>
+          <button type="button" className="explore-role-card" onClick={() => setSelectedRole('farmer')}>
+            <strong>{copy.farmerRole}</strong>
+            <span>Prices, lots, offers, and sale windows</span>
+            <b>↗</b>
+          </button>
+          <button type="button" className="explore-role-card" onClick={() => setSelectedRole('buyer')}>
+            <strong>{copy.buyerRole}</strong>
+            <span>Verified supply, matching, and procurement</span>
+            <b>↗</b>
+          </button>
         </div>
         <button type="button" className="secondary-btn wide" onClick={onClose}>Back to Farmly</button>
       </div>
     </div>
+  )
+}
+
+function LandingAICoach({ copy, onExploreWorkspace }) {
+  const [messages, setMessages] = useState([
+    { role: 'user', text: 'Should I sell my soybean today?' },
+    {
+      role: 'coach',
+      title: 'My read: hold 4 days.',
+      text: 'Prices are moving up. Your storage window is safe, and the best offer is currently ₹2,680/qtl.',
+      meta: 'Based on 5 local signals',
+    },
+  ])
+  const [draft, setDraft] = useState('')
+  const [busy, setBusy] = useState(false)
+
+  const ask = (raw) => {
+    const question = (raw || draft).trim()
+    if (!question || busy) return
+    setBusy(true)
+    setMessages((current) => [...current, { role: 'user', text: question }])
+    setDraft('')
+    window.setTimeout(() => {
+      const reply = getNLQueryResponse(question)
+      setMessages((current) => [
+        ...current,
+        {
+          role: 'coach',
+          title: 'Farmly coach',
+          text: reply,
+          meta: 'Demo answer · grounded in sample Beed market data',
+        },
+      ])
+      setBusy(false)
+    }, 380)
+  }
+
+  return (
+    <section className="ai-section" id="ai-coach">
+      <div className="ai-copy">
+        <p className="landing-eyebrow">{copy.aiEyebrow}</p>
+        <h2>{copy.aiTitle}</h2>
+        <p>{copy.aiBody}</p>
+        <div className="ai-cta-row">
+          <button
+            type="button"
+            className="light-button"
+            onClick={() => {
+              document.getElementById('ai-coach-input')?.focus()
+              ask('When should I sell my soybean?')
+            }}
+          >
+            {copy.aiCta}
+            <span>↗</span>
+          </button>
+          <button type="button" className="ghost-light-btn" onClick={onExploreWorkspace}>
+            Open full workspace
+          </button>
+        </div>
+      </div>
+
+      <div className="ai-chat">
+        <div className="chat-top">
+          <span className="ai-spark">✦</span>
+          <div>
+            <strong>Farmly Coach</strong>
+            <small>Market intelligence · online</small>
+          </div>
+          <span className="chat-menu">•••</span>
+        </div>
+
+        <div className="chat-thread">
+          {messages.map((message, index) =>
+            message.role === 'user' ? (
+              <div className="chat-message user-message" key={`u-${index}`}>{message.text}</div>
+            ) : (
+              <div className="chat-message coach-message" key={`c-${index}`}>
+                <span>✦</span>
+                <div>
+                  <strong>{message.title}</strong>
+                  <p>{message.text}</p>
+                  <em>{message.meta}</em>
+                </div>
+              </div>
+            ),
+          )}
+        </div>
+
+        <form
+          className="chat-input-form"
+          onSubmit={(event) => {
+            event.preventDefault()
+            ask()
+          }}
+        >
+          <input
+            id="ai-coach-input"
+            type="text"
+            value={draft}
+            onChange={(event) => setDraft(event.target.value)}
+            placeholder="Ask about a crop, price, or buyer"
+            aria-label="Ask the market"
+          />
+          <button type="submit" disabled={busy || !draft.trim()}>↑</button>
+        </form>
+      </div>
+    </section>
   )
 }
 
@@ -1453,114 +1592,58 @@ function DashboardPreview() {
   const selected = metrics[selectedMetric]
 
   return (
-    <div className="preview-window">
-      <div className="preview-topbar"><span className="preview-brand">Farmly <small>farmer workspace</small></span><span className="preview-live">● Live market</span></div>
-      <div className="preview-body">
-        <div className="preview-copy"><span className="preview-kicker">Today’s signal</span><strong>₹2,450<span>/qtl</span></strong><small>Soybean · Beed Mandi <b>+1.8%</b></small><p className="preview-insight">{selected.detail}</p></div>
-        <div className="preview-chart"><span className="chart-line" /><i>₹2,680 best offer</i></div>
-        <div className="preview-metrics">
-          {Object.entries(metrics).map(([key, metric]) => <button type="button" className={selectedMetric === key ? 'is-selected' : ''} key={key} onClick={() => setSelectedMetric(key)}><small>{metric.label}</small><strong>{metric.value}</strong></button>)}
+    <div className="overflow-hidden rounded-2xl border border-[#1f4d3a]/20 bg-[#123628] shadow-[0_20px_48px_rgba(18,53,40,0.22)]">
+      <div className="flex items-center justify-between border-b border-white/10 px-4 py-2.5">
+        <span className="text-sm font-semibold text-[#f7f3e9]">
+          Farmly <small className="ml-1 text-[0.58rem] font-bold uppercase tracking-[0.12em] text-white/45">farmer workspace</small>
+        </span>
+        <span className="text-[0.68rem] font-semibold text-emerald-300">● Live market</span>
+      </div>
+      <div className="grid gap-3 p-4 sm:grid-cols-[0.95fr_1.05fr]">
+        <div>
+          <p className="text-[0.62rem] font-semibold uppercase tracking-[0.12em] text-white/45">Today’s signal</p>
+          <p className="mt-1 text-3xl font-bold tracking-tight text-white">
+            ₹2,450<span className="ml-1 text-xs font-medium text-white/45">/qtl</span>
+          </p>
+          <p className="mt-1 text-xs text-white/55">
+            Soybean · Beed Mandi <b className="ml-1 text-emerald-300">+1.8%</b>
+          </p>
+          <p className="mt-2 text-sm leading-relaxed text-white/65">{selected.detail}</p>
+        </div>
+        <div className="relative min-h-[120px] rounded-xl border border-white/10 bg-white/5 p-3">
+          <svg viewBox="0 0 220 90" className="h-full w-full" aria-hidden="true">
+            <defs>
+              <linearGradient id="previewFill" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#e8b84b" stopOpacity="0.35" />
+                <stop offset="100%" stopColor="#e8b84b" stopOpacity="0" />
+              </linearGradient>
+            </defs>
+            <path d="M8 70 L45 58 L80 62 L115 40 L150 46 L210 18 L210 90 L8 90 Z" fill="url(#previewFill)" />
+            <path d="M8 70 L45 58 L80 62 L115 40 L150 46 L210 18" fill="none" stroke="#e8b84b" strokeWidth="2.5" strokeLinecap="round" />
+            <circle cx="210" cy="18" r="4" fill="#e8b84b" />
+          </svg>
+          <span className="absolute right-3 top-2 text-[0.65rem] font-semibold text-[#e8b84b]">₹2,680 best offer</span>
+        </div>
+        <div className="grid grid-cols-3 gap-2 sm:col-span-2">
+          {Object.entries(metrics).map(([key, metric]) => (
+            <button
+              key={key}
+              type="button"
+              onClick={() => setSelectedMetric(key)}
+              className={`rounded-xl border px-3 py-2.5 text-left transition ${
+                selectedMetric === key
+                  ? 'border-[#e8b84b]/50 bg-[#e8b84b]/15'
+                  : 'border-white/10 bg-white/5 hover:bg-white/8'
+              }`}
+            >
+              <small className="block text-[0.58rem] uppercase tracking-wide text-white/45">{metric.label}</small>
+              <strong className="mt-1 block text-sm font-semibold text-white">{metric.value}</strong>
+            </button>
+          ))}
         </div>
       </div>
     </div>
   )
-}
-
-function InteractiveMarketScene() {
-  const canvasRef = useRef(null)
-
-  useEffect(() => {
-    const canvas = canvasRef.current
-    if (!canvas) return undefined
-
-    const scene = new THREE.Scene()
-    const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 100)
-    camera.position.set(0, 1.6, 7)
-
-    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true })
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
-    renderer.setSize(canvas.clientWidth, canvas.clientHeight, false)
-    renderer.outputColorSpace = THREE.SRGBColorSpace
-
-    scene.add(new THREE.AmbientLight(0xcfe8c4, 2.2))
-    const keyLight = new THREE.PointLight(0xe8b84b, 12, 12)
-    keyLight.position.set(2, 4, 4)
-    scene.add(keyLight)
-
-    const field = new THREE.Group()
-    const grid = new THREE.GridHelper(6, 18, 0x5d9775, 0x2a654d)
-    grid.rotation.x = 0.18
-    field.add(grid)
-
-    const nodeGeometry = new THREE.SphereGeometry(0.12, 16, 16)
-    const nodeMaterials = [0xe8b84b, 0x8fd69c, 0xf7f3e9].map((color) => new THREE.MeshStandardMaterial({ color, emissive: color, emissiveIntensity: 0.25 }))
-    const nodePositions = [[-2, 0.25, 0.4], [-0.7, 0.5, -0.6], [0.8, 0.32, 0.4], [1.9, 0.65, -0.4], [0, 0.95, 0]]
-    nodePositions.forEach(([x, y, z], index) => {
-      const node = new THREE.Mesh(nodeGeometry, nodeMaterials[index % nodeMaterials.length])
-      node.position.set(x, y, z)
-      node.userData.baseY = y
-      field.add(node)
-    })
-
-    const lineMaterial = new THREE.LineBasicMaterial({ color: 0xe8b84b, transparent: true, opacity: 0.5 })
-    const links = [[0, 1], [1, 2], [2, 3], [1, 4], [4, 2]]
-    links.forEach(([from, to]) => {
-      const points = [new THREE.Vector3(...nodePositions[from]), new THREE.Vector3(...nodePositions[to])]
-      field.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(points), lineMaterial))
-    })
-    scene.add(field)
-
-    const pointer = { x: 0, y: 0 }
-    const drag = { active: false, x: 0, y: 0, rotationX: 0, rotationY: 0 }
-    const handlePointer = (event) => {
-      const bounds = canvas.getBoundingClientRect()
-      pointer.x = ((event.clientX - bounds.left) / bounds.width) * 2 - 1
-      pointer.y = -(((event.clientY - bounds.top) / bounds.height) * 2 - 1)
-      if (drag.active) {
-        drag.rotationY += (event.clientX - drag.x) * 0.012
-        drag.rotationX += (event.clientY - drag.y) * 0.008
-        drag.x = event.clientX
-        drag.y = event.clientY
-      }
-    }
-    const handlePointerDown = (event) => { drag.active = true; drag.x = event.clientX; drag.y = event.clientY; canvas.setPointerCapture(event.pointerId) }
-    const handlePointerUp = (event) => { drag.active = false; canvas.releasePointerCapture(event.pointerId) }
-    const handleWheel = (event) => { camera.position.z = THREE.MathUtils.clamp(camera.position.z + event.deltaY * 0.004, 4.8, 9) }
-    canvas.addEventListener('pointermove', handlePointer)
-    canvas.addEventListener('pointerdown', handlePointerDown)
-    canvas.addEventListener('pointerup', handlePointerUp)
-    canvas.addEventListener('pointercancel', handlePointerUp)
-    canvas.addEventListener('wheel', handleWheel, { passive: true })
-
-    let frameId
-    const startedAt = performance.now()
-    const animate = (now) => {
-      const elapsed = (now - startedAt) * 0.001
-      field.rotation.y = drag.rotationY + Math.sin(elapsed * 0.25) * 0.04 + pointer.x * 0.02
-      field.rotation.x = drag.rotationX * 0.5 + pointer.y * 0.06
-      field.children.forEach((child, index) => {
-        if (child.isMesh && child.userData.baseY) child.position.y = child.userData.baseY + Math.sin(elapsed * 1.8 + index) * 0.05
-      })
-      renderer.render(scene, camera)
-      frameId = requestAnimationFrame(animate)
-    }
-    frameId = requestAnimationFrame(animate)
-
-    return () => {
-      cancelAnimationFrame(frameId)
-      canvas.removeEventListener('pointermove', handlePointer)
-      canvas.removeEventListener('pointerdown', handlePointerDown)
-      canvas.removeEventListener('pointerup', handlePointerUp)
-      canvas.removeEventListener('pointercancel', handlePointerUp)
-      canvas.removeEventListener('wheel', handleWheel)
-      renderer.dispose()
-      nodeGeometry.dispose()
-      nodeMaterials.forEach((material) => material.dispose())
-      lineMaterial.dispose()
-    }
-  }, [])
-
-  return <div className="three-market-card"><div className="three-label"><span>3D market pulse</span><small>Drag to explore · scroll to zoom</small></div><canvas ref={canvasRef} aria-label="Interactive 3D market network" /></div>
 }
 
 function LandingPage({ language, setLanguage, onLogin, onRegister, onExplore }) {
@@ -1570,7 +1653,7 @@ function LandingPage({ language, setLanguage, onLogin, onRegister, onExplore }) 
   useEffect(() => {
     const root = landingRef.current
     if (!root) return undefined
-    const revealItems = root.querySelectorAll('.landing-hero, .trust-strip, .landing-section, .ai-section, .final-cta')
+    const revealItems = root.querySelectorAll('.landing-hero, .trusted-strip, .landing-section, .ai-section, .final-cta')
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
@@ -1586,9 +1669,23 @@ function LandingPage({ language, setLanguage, onLogin, onRegister, onExplore }) 
 
   return (
     <div className="landing-page" ref={landingRef}>
-      <header className="landing-nav"><a className="landing-brand" href="#top"><span>Farmly</span><small>market linkages</small></a><nav className="landing-links" aria-label="Primary navigation"><a href="#how-it-works">{copy.nav[0]}</a><a href="#features">{copy.nav[1]}</a><a href="#features">{copy.nav[2]}</a><a href="#ai-coach">{copy.nav[3]}</a></nav><div className="landing-actions"><LanguagePicker language={language} setLanguage={setLanguage} /><button type="button" className="primary-btn nav-cta" onClick={onRegister}>{copy.cta}<span>↗</span></button></div></header>
+      <header className="landing-nav"><a className="landing-brand" href="#top"><span>Farmly</span><small>market linkages</small></a><nav className="landing-links" aria-label="Primary navigation"><a href="#how-it-works">{copy.nav[0]}</a><a href="#features">{copy.nav[1]}</a><a href="#market-pulse">Prices</a><a href="#ai-coach">{copy.nav[3]}</a></nav><div className="landing-actions"><LanguagePicker language={language} setLanguage={setLanguage} /><button type="button" className="primary-btn nav-cta" onClick={onRegister}>{copy.cta}<span>↗</span></button></div></header>
       <main id="top">
-        <section className="landing-hero"><div className="hero-orbit orbit-one" /><div className="hero-orbit orbit-two" /><div className="hero-content"><p className="landing-eyebrow">{copy.eyebrow} <span>•</span> 01</p><h1>{copy.title}</h1><p className="landing-intro">{copy.intro}</p><div className="hero-actions"><button type="button" className="primary-btn hero-button" onClick={onExplore}>{copy.primary}<span>↗</span></button><a className="text-link" href="#how-it-works">{copy.secondary} <span>↓</span></a></div><p className="hero-trust"><span className="trust-avatars"><i>MP</i><i>AK</i><i>SD</i></span>{copy.trusted}</p></div><div className="hero-art"><div className="art-label"><span className="pulse-dot" /> Live sourcing map</div><div className="map-grid"><span className="map-route route-one" /><span className="map-route route-two" /><span className="map-pin pin-one">₹</span><span className="map-pin pin-two">●</span><span className="map-pin pin-three">₹</span><div className="map-card"><small>Best nearby offer</small><strong>₹2,680 <span>/qtl</span></strong><em>AgroTrade Processors <b>↑ 4.2%</b></em></div></div></div></section>
+        <section className="landing-hero landing-hero-premium">
+          <div className="hero-content">
+            <p className="landing-eyebrow">{copy.eyebrow} <span>•</span> 01</p>
+            <h1>{copy.title}</h1>
+            <p className="landing-intro">{copy.intro}</p>
+            <div className="hero-actions">
+              <button type="button" className="primary-btn hero-button" onClick={onExplore}>{copy.primary}<span>↗</span></button>
+              <a className="text-link" href="#market-pulse">{copy.secondary} <span>↓</span></a>
+            </div>
+            <p className="hero-trust"><span className="trust-avatars"><i>MP</i><i>AK</i><i>SD</i></span>{copy.trusted}</p>
+          </div>
+          <div className="hero-art">
+            <LandingHeroPanel />
+          </div>
+        </section>
         <div className="trusted-strip">
   <div className="rtl-marquee">
 
@@ -1679,12 +1776,106 @@ function LandingPage({ language, setLanguage, onLogin, onRegister, onExplore }) 
 </section>
         <section className="landing-section feature-section" id="features"><div className="section-intro centered"><p className="landing-eyebrow">{copy.featuresEyebrow}</p><h2>{copy.featuresTitle}</h2></div><div className="feature-grid">{copy.features.map(([number, title, body]) => <article className="feature-card" key={number}><span className="feature-number">{number}</span><div><h3>{title}</h3><p>{body}</p></div><span className="feature-arrow">↗</span></article>)}</div></section>
         <section className="landing-section how-section" id="how-it-works"><div className="section-intro"><p className="landing-eyebrow">{copy.howEyebrow}</p><h2>{copy.howTitle}</h2></div><div className="how-grid">{copy.how.map(([number, title, body], index) => <article className="how-card" key={number}><div className="how-number">{number}<span>{index < 2 ? '→' : '✓'}</span></div><h3>{title}</h3><p>{body}</p></article>)}</div></section>
-        <section className="landing-section preview-section"><div className="preview-heading"><p className="landing-eyebrow">{copy.previewEyebrow}</p><h2>{copy.previewTitle}</h2><p>One calm view of prices, offers, quality, logistics, and the decision in front of you.</p></div><InteractiveMarketScene /><DashboardPreview /></section>
-        <section className="ai-section" id="ai-coach"><div className="ai-copy"><p className="landing-eyebrow">{copy.aiEyebrow}</p><h2>{copy.aiTitle}</h2><p>{copy.aiBody}</p><button type="button" className="light-button" onClick={onExplore}>{copy.aiCta}<span>↗</span></button></div><div className="ai-chat"><div className="chat-top"><span className="ai-spark">✦</span><div><strong>Farmly Coach</strong><small>Market intelligence · online</small></div><span className="chat-menu">•••</span></div><div className="chat-message user-message">Should I sell my soybean today?</div><div className="chat-message coach-message"><span>✦</span><div><strong>My read: hold 4 days.</strong><p>Prices are moving up. Your storage window is safe, and the best offer is currently ₹2,680/qtl.</p><em>Based on 5 local signals</em></div></div><div className="chat-input">Ask about a crop, price, or buyer <span>↑</span></div></div></section>
-        <section className="landing-section social-section"><div className="section-intro centered"><p className="landing-eyebrow">{copy.testimonialsEyebrow}</p><h2>{copy.testimonialsTitle}</h2></div><div className="testimonial-grid">{copy.testimonials.map(([quote, name, role]) => <article className="testimonial-card" key={name}><div className="quote-mark">“</div><p>{quote}</p><footer><span className="testimonial-avatar">{name.split(' ').map((part) => part[0]).join('')}</span><span><strong>{name}</strong><small>{role}</small></span></footer></article>)}</div></section>
-        <section className="final-cta"><div><p className="landing-eyebrow">Ready when your harvest is</p><h2>{copy.finalTitle}</h2><p>{copy.finalBody}</p></div><button type="button" className="light-button" onClick={onRegister}>{copy.cta}<span>↗</span></button></section>
+
+        <section className="landing-section market-pulse-section" id="market-pulse">
+          <div className="section-intro mx-auto max-w-2xl text-center">
+            <p className="landing-eyebrow">Price discovery</p>
+            <h2 className="font-display">See the market move before you sell.</h2>
+            <p className="mx-auto mt-2 max-w-lg text-sm text-white/65">Compare crop trends and the mandi heat matrix — then open the workspace for full ENR ranking.</p>
+          </div>
+          <div className="mx-auto mt-6 grid max-w-5xl gap-4 px-4 lg:grid-cols-[1.35fr_0.65fr]">
+            <LandingPriceGraph />
+            <div className="flex flex-col gap-2.5">
+              <article className="rounded-xl border border-white/10 bg-white/5 px-4 py-3">
+                <span className="text-[0.6rem] font-semibold uppercase tracking-[0.12em] text-white/50">Mandi</span>
+                <strong className="mt-1 block text-xl font-semibold text-white">₹2,450</strong>
+                <small className="text-xs text-white/50">Beed yard · today</small>
+              </article>
+              <article className="rounded-xl border border-farm-gold/35 bg-gradient-to-br from-farm-gold/20 to-farm-mid/30 px-4 py-3">
+                <span className="text-[0.6rem] font-semibold uppercase tracking-[0.12em] text-farm-gold">Best net path</span>
+                <strong className="mt-1 block text-xl font-semibold text-white">₹2,470 ENR</strong>
+                <small className="text-xs text-white/65">Processor after costs</small>
+              </article>
+              <article className="rounded-xl border border-white/10 bg-white/5 px-4 py-3">
+                <span className="text-[0.6rem] font-semibold uppercase tracking-[0.12em] text-white/50">Sale window</span>
+                <strong className="mt-1 block text-xl font-semibold text-white">Hold 4 days</strong>
+                <small className="text-xs text-white/50">Trend still rising</small>
+              </article>
+              <article className="rounded-xl border border-emerald-400/20 bg-emerald-500/10 px-3 py-2.5 text-xs leading-relaxed text-emerald-100/90">
+                Tip: gold cells are peak yards — compare with ENR, not board price alone.
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <section className="landing-section preview-section !bg-[#dce5d8]">
+          <div className="mx-auto grid max-w-5xl gap-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
+            <div className="preview-heading !p-0">
+              <p className="landing-eyebrow">{copy.previewEyebrow}</p>
+              <h2 className="!max-w-[16ch]">{copy.previewTitle}</h2>
+              <p className="mt-2 max-w-md text-sm leading-relaxed text-[#4a5f52]">
+                One calm view of prices, offers, quality, logistics, and the decision in front of you.
+              </p>
+              <div className="mt-5 hidden lg:block">
+                <InteractiveMarketScene />
+              </div>
+            </div>
+            <div className="space-y-4">
+              <DashboardPreview />
+              <div className="lg:hidden">
+                <InteractiveMarketScene />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <LandingAICoach copy={copy} onExploreWorkspace={onExplore} />
+
+        <section className="landing-section social-section !bg-[#f4f1ea]">
+          <div className="mx-auto max-w-5xl">
+            <div className="section-intro centered mx-auto max-w-xl">
+              <p className="landing-eyebrow">{copy.testimonialsEyebrow}</p>
+              <h2 className="!mx-auto !max-w-[16ch]">{copy.testimonialsTitle}</h2>
+            </div>
+            <div className="mt-8 grid gap-4 md:grid-cols-2">
+              {copy.testimonials.map(([quote, name, role]) => (
+                <article
+                  key={name}
+                  className="rounded-2xl border border-[#1f4d3a]/12 bg-white p-5 shadow-[0_12px_32px_rgba(20,53,40,0.08)] transition hover:-translate-y-0.5 hover:shadow-[0_16px_36px_rgba(20,53,40,0.12)]"
+                >
+                  <div className="text-3xl font-bold leading-none text-[#b17b2b]">“</div>
+                  <p className="mt-2 text-[0.98rem] leading-relaxed text-[#355345]">{quote}</p>
+                  <footer className="mt-5 flex items-center gap-3">
+                    <span className="grid h-9 w-9 place-items-center rounded-full bg-[#d9b460] text-xs font-bold text-[#19382a]">
+                      {name.split(' ').map((part) => part[0]).join('')}
+                    </span>
+                    <span>
+                      <strong className="block text-sm text-[#143528]">{name}</strong>
+                      <small className="text-xs text-[#748579]">{role}</small>
+                    </span>
+                  </footer>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="final-cta relative overflow-hidden !bg-gradient-to-br from-[#163d2c] via-[#1a4a35] to-[#0f2a20] !text-white !py-10">
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_15%_20%,rgba(212,160,23,0.2),transparent_42%)]" />
+          <div className="relative z-[1] mx-auto flex w-full max-w-5xl flex-col items-start justify-between gap-5 rounded-2xl border border-white/10 bg-white/5 px-5 py-6 backdrop-blur-sm sm:px-7 lg:flex-row lg:items-center">
+            <div className="max-w-xl">
+              <p className="!text-farm-gold landing-eyebrow">Ready when your harvest is</p>
+              <h2 className="!mt-2 !max-w-[18ch] !text-[clamp(1.55rem,2.8vw,2.2rem)] !leading-snug !text-white">{copy.finalTitle}</h2>
+              <p className="!mt-2 !max-w-md !text-sm !leading-relaxed !text-white/65">{copy.finalBody}</p>
+            </div>
+            <button type="button" className="light-button !mt-0 shrink-0 !bg-farm-gold !text-farm-ink shadow-lg shadow-black/20" onClick={onRegister}>
+              {copy.cta}
+              <span>↗</span>
+            </button>
+          </div>
+        </section>
       </main>
-      <footer className="landing-footer"><a className="landing-brand" href="#top"><span>Farmly</span><small>market linkages</small></a><p>{copy.footer}</p><div><a href="#features">Product</a><a href="#ai-coach">AI coach</a></div></footer>
+      <LandingFooter footerText={copy.footer} onRegister={onRegister} />
     </div>
   )
 }
