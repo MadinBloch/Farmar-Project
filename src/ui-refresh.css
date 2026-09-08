@@ -1,0 +1,1435 @@
+/* =========================================================
+   FIRMLY — VISUAL SYSTEM
+   UI / Animation only
+   Existing application content and logic untouched
+   ========================================================= */
+
+
+/* =========================================================
+   DESIGN TOKENS
+   ========================================================= */
+
+:root {
+  --firmly-green: #176b45;
+  --firmly-green-dark: #0d3d2b;
+  --firmly-green-soft: #4caf50;
+
+  --firmly-gold: #b77a25;
+  --firmly-gold-bright: #e7a928;
+
+  --firmly-paper: #f7f9f4;
+  --firmly-white: #ffffff;
+
+  --firmly-ink: #1f2933;
+  --firmly-muted: #64756d;
+
+  --firmly-line: #dce3dd;
+
+  --firmly-card:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.96),
+      rgba(246, 248, 243, 0.9)
+    );
+
+  --firmly-shadow-sm:
+    0 4px 16px rgba(13, 61, 43, 0.07);
+
+  --firmly-shadow-md:
+    0 14px 38px rgba(13, 61, 43, 0.12);
+
+  --firmly-shadow-lg:
+    0 24px 70px rgba(13, 61, 43, 0.16);
+
+  --firmly-ease:
+    cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+
+/* =========================================================
+   GLOBAL
+   ========================================================= */
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  overflow-x: hidden;
+  background: var(--firmly-paper);
+}
+
+#root {
+  min-height: 100vh;
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+::selection {
+  background: rgba(23, 107, 69, 0.18);
+  color: var(--firmly-green-dark);
+}
+
+
+/* =========================================================
+   ACCESSIBILITY / FOCUS
+   ========================================================= */
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid rgba(231, 169, 40, 0.55);
+  outline-offset: 3px;
+}
+
+
+/* =========================================================
+   PAGE ENTRANCE
+   ========================================================= */
+
+.page-shell,
+.onboarding-page,
+.dashboard-page {
+  animation: firmlyPageIn 700ms var(--firmly-ease) both;
+}
+
+@keyframes firmlyPageIn {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
+/* =========================================================
+   BRAND
+   ========================================================= */
+
+.brand-mark,
+.landing-brand {
+  transition:
+    transform 220ms var(--firmly-ease),
+    opacity 220ms ease;
+}
+
+.brand-mark:hover,
+.landing-brand:hover {
+  transform: translateY(-1px);
+  opacity: 0.9;
+}
+
+
+/* =========================================================
+   NAVIGATION
+   ========================================================= */
+
+.topbar {
+  position: relative;
+  z-index: 50;
+
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.topnav a {
+  position: relative;
+
+  transition:
+    color 200ms ease,
+    transform 200ms var(--firmly-ease);
+}
+
+.topnav a::after {
+  content: "";
+
+  position: absolute;
+
+  left: 0;
+  right: 0;
+  bottom: -7px;
+
+  height: 2px;
+
+  border-radius: 999px;
+
+  background: var(--firmly-gold);
+
+  transform: scaleX(0);
+  transform-origin: center;
+
+  transition:
+    transform 240ms var(--firmly-ease);
+}
+
+.topnav a:hover {
+  transform: translateY(-1px);
+}
+
+.topnav a:hover::after {
+  transform: scaleX(1);
+}
+
+
+/* =========================================================
+   BUTTONS
+   ========================================================= */
+
+.primary-btn,
+.secondary-btn,
+.ghost-btn {
+  min-height: 44px;
+
+  transition:
+    transform 180ms var(--firmly-ease),
+    box-shadow 180ms ease,
+    background-color 180ms ease,
+    border-color 180ms ease;
+}
+
+.primary-btn {
+  position: relative;
+  overflow: hidden;
+}
+
+.primary-btn::before {
+  content: "";
+
+  position: absolute;
+  inset: 0;
+
+  background:
+    linear-gradient(
+      110deg,
+      transparent 20%,
+      rgba(255, 255, 255, 0.22) 48%,
+      transparent 76%
+    );
+
+  transform: translateX(-120%);
+
+  transition:
+    transform 650ms var(--firmly-ease);
+
+  pointer-events: none;
+}
+
+.primary-btn:hover {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 12px 26px rgba(23, 107, 69, 0.2);
+}
+
+.primary-btn:hover::before {
+  transform: translateX(120%);
+}
+
+.primary-btn:active,
+.secondary-btn:active,
+.ghost-btn:active {
+  transform: scale(0.97);
+}
+
+
+/* =========================================================
+   LANDING / DASHBOARD HERO
+   ========================================================= */
+
+.landing-hero,
+.dashboard-hero {
+  position: relative;
+
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.landing-hero::before,
+.dashboard-hero::before {
+  content: "";
+
+  position: absolute;
+  inset: -20%;
+
+  z-index: -2;
+
+  pointer-events: none;
+
+  background:
+    radial-gradient(
+      circle at 18% 30%,
+      rgba(76, 175, 80, 0.16),
+      transparent 30%
+    ),
+    radial-gradient(
+      circle at 82% 20%,
+      rgba(231, 169, 40, 0.11),
+      transparent 26%
+    ),
+    radial-gradient(
+      circle at 65% 90%,
+      rgba(23, 107, 69, 0.12),
+      transparent 30%
+    );
+}
+
+
+/* =========================================================
+   HERO / MAP VISUAL
+   ========================================================= */
+
+.hero-visual,
+.map-visual,
+.hero-map,
+.landing-hero-visual {
+  position: relative;
+
+  overflow: hidden;
+  isolation: isolate;
+
+  border-radius: 24px;
+}
+
+.hero-visual *,
+.map-visual *,
+.hero-map *,
+.landing-hero-visual * {
+  max-width: 100%;
+}
+
+.hero-visual img,
+.map-visual img,
+.hero-map img,
+.landing-hero-visual img {
+  display: block;
+
+  width: 100%;
+  height: auto;
+}
+
+
+/* =========================================================
+   MAP ROUTE
+   ========================================================= */
+
+.map-line,
+.map-route,
+.route-line {
+  transform-origin: center;
+
+  animation:
+    firmlyRoute 5s ease-in-out infinite alternate;
+}
+
+@keyframes firmlyRoute {
+  from {
+    opacity: 0.42;
+  }
+
+  to {
+    opacity: 0.9;
+  }
+}
+
+
+/* =========================================================
+   MAP MARKER
+   ========================================================= */
+
+.map-marker,
+.market-marker,
+.location-marker {
+  transform-origin: center bottom;
+
+  animation:
+    firmlyMarker 3s ease-in-out infinite;
+}
+
+@keyframes firmlyMarker {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+
+/* =========================================================
+   BEST OFFER CARD
+   ========================================================= */
+
+.best-offer-card,
+.map-offer-card,
+.market-offer-card {
+  animation:
+    firmlyOfferFloat 4s ease-in-out infinite,
+    firmlyOfferGlow 4s ease-in-out infinite;
+}
+
+@keyframes firmlyOfferFloat {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+
+  50% {
+    transform: translate3d(0, -7px, 0);
+  }
+}
+
+@keyframes firmlyOfferGlow {
+  0%,
+  100% {
+    box-shadow:
+      0 12px 30px rgba(0, 0, 0, 0.12);
+  }
+
+  50% {
+    box-shadow:
+      0 18px 42px rgba(23, 107, 69, 0.2);
+  }
+}
+
+
+/* =========================================================
+   LIVE SOURCING
+   ========================================================= */
+
+.live-sourcing,
+.live-map-label,
+.live-badge {
+  display: inline-flex;
+
+  align-items: center;
+  gap: 8px;
+}
+
+.live-sourcing::before,
+.live-map-label::before,
+.live-badge::before {
+  content: "";
+
+  width: 8px;
+  height: 8px;
+
+  flex: 0 0 8px;
+
+  border-radius: 50%;
+
+  background: #78d58b;
+
+  box-shadow:
+    0 0 0 5px rgba(120, 213, 139, 0.1);
+
+  animation:
+    firmlyPulse 1.8s ease-in-out infinite;
+}
+
+@keyframes firmlyPulse {
+  0%,
+  100% {
+    transform: scale(0.85);
+    opacity: 0.7;
+  }
+
+  50% {
+    transform: scale(1.12);
+    opacity: 1;
+  }
+}
+
+
+/* =========================================================
+   TRUST / PARTNER TICKER
+   ========================================================= */
+
+.trusted-strip,
+.partner-strip,
+.network-strip,
+.landing-trusted,
+.trusted-network {
+  position: relative;
+
+  width: 100%;
+
+  overflow: hidden;
+}
+
+
+/* Fade edges */
+
+.trusted-strip::before,
+.trusted-strip::after,
+.partner-strip::before,
+.partner-strip::after,
+.network-strip::before,
+.network-strip::after {
+  content: "";
+
+  position: absolute;
+
+  top: 0;
+  bottom: 0;
+
+  width: 70px;
+
+  z-index: 3;
+
+  pointer-events: none;
+}
+
+.trusted-strip::before,
+.partner-strip::before,
+.network-strip::before {
+  left: 0;
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(7, 42, 32, 1),
+      rgba(7, 42, 32, 0)
+    );
+}
+
+.trusted-strip::after,
+.partner-strip::after,
+.network-strip::after {
+  right: 0;
+
+  background:
+    linear-gradient(
+      270deg,
+      rgba(7, 42, 32, 1),
+      rgba(7, 42, 32, 0)
+    );
+}
+
+
+/* =========================================================
+   MARQUEE
+   ========================================================= */
+
+.rtl-marquee {
+  display: flex;
+
+  width: max-content;
+  min-width: max-content;
+
+  align-items: center;
+
+  animation:
+    firmlyMarquee 24s linear infinite;
+
+  will-change: transform;
+}
+
+.rtl-marquee:hover {
+  animation-play-state: paused;
+}
+
+@keyframes firmlyMarquee {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.rtl-marquee > * {
+  flex: 0 0 auto;
+}
+
+.rtl-marquee a,
+.rtl-marquee span {
+  transition:
+    opacity 180ms ease,
+    transform 180ms var(--firmly-ease);
+}
+
+.rtl-marquee a:hover,
+.rtl-marquee span:hover {
+  opacity: 0.75;
+
+  transform:
+    translateY(-1px);
+}
+
+
+/* =========================================================
+   TRUSTED STRIP CONTENT
+   ========================================================= */
+
+.trusted-strip {
+  min-height: 68px;
+
+  display: flex;
+  align-items: center;
+
+  background: #072a20;
+}
+
+.trusted-strip .rtl-marquee {
+  min-height: 68px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 80px;
+
+  padding: 0 40px;
+}
+
+.trusted-copy {
+  width: 270px;
+  flex: 0 0 270px;
+
+  color: rgba(255, 255, 255, 0.78);
+
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.trusted-partner {
+  flex: 0 0 auto;
+
+  color: rgba(255, 255, 255, 0.52);
+
+  font-size: 12px;
+  font-weight: 800;
+
+  letter-spacing: 0.16em;
+
+  white-space: nowrap;
+
+  text-transform: uppercase;
+}
+
+
+/* =========================================================
+   PREMIUM LANDING STATS
+   ========================================================= */
+
+.stats-section {
+  position: relative;
+
+  width: 100%;
+
+  display: grid;
+
+  grid-template-columns:
+    minmax(360px, 0.8fr)
+    minmax(580px, 1.2fr);
+
+  align-items: center;
+
+  column-gap: 80px;
+
+  box-sizing: border-box;
+}
+
+
+/* =========================================================
+   STATS INTRO
+   ========================================================= */
+
+.stats-section .section-intro {
+  width: 100%;
+
+  min-width: 0;
+  max-width: 430px;
+}
+
+.stats-section .section-intro h2 {
+  margin: 0;
+}
+
+
+/* =========================================================
+   STATS GRID
+   ========================================================= */
+
+.stats-section .landing-stats {
+  width: 100%;
+  max-width: 620px;
+
+  min-width: 0;
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+
+  gap: 16px;
+
+  margin: 0;
+  padding: 0;
+
+  box-sizing: border-box;
+}
+
+
+/* Prevent grid children from squeezing */
+
+.stats-section .landing-stats > * {
+  width: 100%;
+  min-width: 0;
+
+  box-sizing: border-box;
+}
+
+
+/* =========================================================
+   PREMIUM STAT CARD
+   ========================================================= */
+
+.stats-section .landing-stat,
+.stats-section .stat-card {
+  position: relative;
+
+  width: 100%;
+  height: 112px;
+
+  min-width: 0;
+  min-height: 112px;
+
+  padding: 18px 16px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  justify-content: center;
+  align-items: flex-start;
+
+  box-sizing: border-box;
+
+  overflow: hidden;
+
+  border:
+    1px solid rgba(23, 63, 47, 0.13);
+
+  border-radius: 20px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.96),
+      rgba(246, 248, 243, 0.9)
+    );
+
+  box-shadow:
+    0 2px 5px rgba(20, 50, 38, 0.025),
+    0 10px 28px rgba(20, 50, 38, 0.065),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+
+  transition:
+    transform 260ms var(--firmly-ease),
+    box-shadow 260ms ease,
+    border-color 260ms ease,
+    background 260ms ease;
+}
+
+
+/* =========================================================
+   CARD GOLD ACCENT
+   ========================================================= */
+
+.stats-section .landing-stat::before,
+.stats-section .stat-card::before {
+  content: "";
+
+  position: absolute;
+
+  top: 0;
+  left: 17px;
+
+  width: 30px;
+  height: 2px;
+
+  border-radius:
+    0 0 4px 4px;
+
+  background:
+    var(--firmly-gold);
+
+  opacity: 0.9;
+}
+
+
+/* =========================================================
+   CARD ORGANIC DECORATION
+   ========================================================= */
+
+.stats-section .landing-stat::after,
+.stats-section .stat-card::after {
+  content: "";
+
+  position: absolute;
+
+  right: -32px;
+  bottom: -35px;
+
+  width: 92px;
+  height: 92px;
+
+  border-radius: 50%;
+
+  background:
+    radial-gradient(
+      circle at 30% 30%,
+      rgba(205, 222, 211, 0.52),
+      rgba(205, 222, 211, 0.22) 65%,
+      transparent 66%
+    );
+
+  pointer-events: none;
+
+  transition:
+    transform 350ms var(--firmly-ease);
+}
+
+
+/* =========================================================
+   CARD HOVER
+   ========================================================= */
+
+.stats-section .landing-stat:hover,
+.stats-section .stat-card:hover {
+  transform: translateY(-5px);
+
+  border-color:
+    rgba(23, 107, 69, 0.23);
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 1),
+      rgba(247, 249, 245, 0.94)
+    );
+
+  box-shadow:
+    0 4px 8px rgba(20, 50, 38, 0.035),
+    0 18px 38px rgba(20, 50, 38, 0.11),
+    inset 0 1px 0 rgba(255, 255, 255, 1);
+}
+
+.stats-section .landing-stat:hover::after,
+.stats-section .stat-card:hover::after {
+  transform: scale(1.18);
+}
+
+
+/* =========================================================
+   STAT NUMBER
+   ========================================================= */
+
+.stats-section .landing-stat strong,
+.stats-section .stat-card strong,
+.stats-section .stat-number,
+.stats-section .stat-value,
+.stats-section .metric-value {
+  position: relative;
+
+  z-index: 2;
+
+  display: block;
+
+  width: 100%;
+
+  margin: 0 0 10px;
+
+  font-size: 23px;
+
+  line-height: 1;
+
+  font-weight: 600;
+
+  letter-spacing: -0.045em;
+
+  color: #173f2f;
+
+  white-space: nowrap;
+
+  font-variant-numeric: tabular-nums;
+}
+
+
+/* =========================================================
+   STAT LABEL
+   ========================================================= */
+
+.stats-section .landing-stat span,
+.stats-section .stat-card span {
+  position: relative;
+
+  z-index: 2;
+
+  display: block;
+
+  width: 100%;
+
+  margin: 0;
+
+  font-size: 9px;
+
+  line-height: 1.45;
+
+  font-weight: 800;
+
+  letter-spacing: 0.105em;
+
+  text-transform: uppercase;
+
+  color: #287052;
+
+  white-space: normal;
+
+  word-break: normal;
+
+  overflow-wrap: break-word;
+}
+
+
+/* =========================================================
+   GENERIC STAT GRID
+   ========================================================= */
+
+.stats-grid {
+  position: relative;
+}
+
+
+/* =========================================================
+   GENERIC STAT CARD
+   Only applies outside the premium landing stats
+   ========================================================= */
+
+.stats-grid .stat-card {
+  position: relative;
+
+  overflow: hidden;
+
+  transition:
+    transform 260ms var(--firmly-ease),
+    box-shadow 260ms ease,
+    background-color 260ms ease;
+}
+
+.stats-grid .stat-card::after {
+  content: "";
+
+  position: absolute;
+
+  width: 100px;
+  height: 100px;
+
+  right: -50px;
+  bottom: -50px;
+
+  border-radius: 50%;
+
+  background:
+    rgba(23, 107, 69, 0.05);
+
+  pointer-events: none;
+
+  transition:
+    transform 400ms var(--firmly-ease);
+}
+
+.stats-grid .stat-card:hover {
+  transform: translateY(-5px);
+
+  box-shadow:
+    var(--firmly-shadow-md);
+}
+
+.stats-grid .stat-card:hover::after {
+  transform: scale(1.7);
+}
+
+
+/* =========================================================
+   STAT NUMBER ENTRANCE
+   ========================================================= */
+
+.stat-number,
+.stat-value,
+.metric-value {
+  display: inline-block;
+
+  font-variant-numeric: tabular-nums;
+
+  letter-spacing: -0.035em;
+
+  animation:
+    firmlyNumberIn 800ms var(--firmly-ease) both;
+}
+
+@keyframes firmlyNumberIn {
+  from {
+    opacity: 0;
+
+    transform:
+      translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+
+    transform:
+      translateY(0);
+  }
+}
+
+
+/* =========================================================
+   GENERIC CARDS
+   ========================================================= */
+
+.panel,
+.card,
+.lot-card,
+.offer-card,
+.buyer-profile-card,
+.bulk-card,
+.highlight-card,
+.match-card,
+.price-row {
+  transition:
+    transform 240ms var(--firmly-ease),
+    box-shadow 240ms ease,
+    border-color 240ms ease;
+}
+
+.panel:hover,
+.lot-card:hover,
+.offer-card:hover,
+.buyer-profile-card:hover,
+.bulk-card:hover,
+.highlight-card:hover,
+.match-card:hover {
+  transform: translateY(-3px);
+
+  box-shadow:
+    var(--firmly-shadow-md);
+}
+
+
+/* =========================================================
+   FORM ELEMENTS
+   ========================================================= */
+
+input,
+select,
+textarea {
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    background-color 180ms ease;
+}
+
+input:hover,
+select:hover,
+textarea:hover {
+  border-color:
+    rgba(23, 107, 69, 0.35);
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color:
+    var(--firmly-green);
+
+  box-shadow:
+    0 0 0 4px rgba(23, 107, 69, 0.09);
+}
+
+
+/* =========================================================
+   AI / RECOMMENDATION CARD
+   ========================================================= */
+
+.ai-card {
+  position: relative;
+
+  overflow: hidden;
+}
+
+.ai-card::before {
+  content: "";
+
+  position: absolute;
+
+  width: 170px;
+  height: 170px;
+
+  right: -60px;
+  top: -70px;
+
+  border-radius: 50%;
+
+  background:
+    rgba(76, 175, 80, 0.08);
+
+  animation:
+    firmlyAiOrb 6s ease-in-out infinite;
+}
+
+@keyframes firmlyAiOrb {
+  0%,
+  100% {
+    transform: scale(0.9);
+  }
+
+  50% {
+    transform: scale(1.12);
+  }
+}
+
+
+/* =========================================================
+   SUCCESS / STATUS
+   ========================================================= */
+
+.success-message,
+.success-card,
+.status-success {
+  animation:
+    firmlySuccessIn 500ms var(--firmly-ease) both;
+}
+
+@keyframes firmlySuccessIn {
+  from {
+    opacity: 0;
+
+    transform:
+      scale(0.97)
+      translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+
+    transform:
+      scale(1)
+      translateY(0);
+  }
+}
+
+
+/* =========================================================
+   TOAST
+   ========================================================= */
+
+.toast,
+.notification-toast {
+  animation:
+    firmlyToastIn 450ms var(--firmly-ease) both;
+}
+
+@keyframes firmlyToastIn {
+  from {
+    opacity: 0;
+
+    transform:
+      translateY(14px)
+      scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+
+    transform:
+      translateY(0)
+      scale(1);
+  }
+}
+
+
+/* =========================================================
+   HERO / STATS WIDTH SAFETY
+   ========================================================= */
+
+.hero-content,
+.hero-art,
+.landing-stats-wrap {
+  min-width: 0;
+}
+
+.hero-art {
+  width: 100%;
+}
+
+.hero-art .landing-stats {
+  margin-left: auto;
+  margin-right: 0;
+}
+
+
+/* =========================================================
+   LARGE DESKTOP
+   ========================================================= */
+
+@media (min-width: 1200px) {
+
+  .stats-section {
+    grid-template-columns:
+      minmax(390px, 0.8fr)
+      minmax(620px, 1.2fr);
+
+    column-gap: 90px;
+  }
+
+  .stats-section .landing-stats {
+    max-width: 620px;
+  }
+
+  .stats-section .landing-stat,
+  .stats-section .stat-card {
+    height: 112px;
+    min-height: 112px;
+  }
+}
+
+
+/* =========================================================
+   TABLET
+   ========================================================= */
+
+@media (max-width: 1100px) {
+
+  .stats-section {
+    grid-template-columns: 1fr;
+
+    row-gap: 35px;
+  }
+
+  .stats-section .section-intro {
+    max-width: 600px;
+  }
+
+  .stats-section .landing-stats {
+    max-width: 100%;
+  }
+
+  .stats-section .landing-stat,
+  .stats-section .stat-card {
+    min-width: 0;
+  }
+}
+
+
+/* =========================================================
+   MOBILE — 2 × 2
+   ========================================================= */
+
+@media (max-width: 700px) {
+
+  .topnav {
+    gap: 12px;
+  }
+
+  .landing-hero,
+  .dashboard-hero {
+    border-radius: 0;
+  }
+
+  .hero-visual,
+  .map-visual,
+  .hero-map,
+  .landing-hero-visual {
+    border-radius: 18px;
+  }
+
+
+  /* Stats */
+
+  .stats-section {
+    row-gap: 28px;
+  }
+
+  .stats-section .landing-stats {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+
+    gap: 12px;
+  }
+
+  .stats-section .landing-stat,
+  .stats-section .stat-card {
+    height: 108px;
+
+    min-height: 108px;
+
+    padding: 16px 14px;
+
+    border-radius: 18px;
+  }
+
+  .stats-section .landing-stat strong,
+  .stats-section .stat-card strong,
+  .stats-section .stat-number,
+  .stats-section .stat-value,
+  .stats-section .metric-value {
+    font-size: 21px;
+
+    margin-bottom: 9px;
+  }
+
+  .stats-section .landing-stat span,
+  .stats-section .stat-card span {
+    font-size: 8px;
+
+    letter-spacing: 0.09em;
+  }
+
+
+  /* Buttons */
+
+  .primary-btn,
+  .secondary-btn,
+  .ghost-btn {
+    min-height: 46px;
+  }
+
+
+  /* Marquee */
+
+  .rtl-marquee {
+    animation-duration: 19s;
+  }
+
+  .trusted-strip .rtl-marquee {
+    gap: 44px;
+
+    padding: 0 24px;
+  }
+
+  .trusted-copy {
+    width: 220px;
+    flex-basis: 220px;
+
+    font-size: 12px;
+  }
+
+  .trusted-partner {
+    font-size: 10px;
+  }
+
+  .trusted-strip::before,
+  .trusted-strip::after,
+  .partner-strip::before,
+  .partner-strip::after,
+  .network-strip::before,
+  .network-strip::after {
+    width: 32px;
+  }
+
+
+  /* Generic stats */
+
+  .stats-grid {
+    gap: 0;
+  }
+
+  .stats-grid .stat-card {
+    min-width: 0;
+  }
+
+  .stat-number,
+  .stat-value,
+  .metric-value {
+    letter-spacing: -0.025em;
+  }
+}
+
+
+/* =========================================================
+   SMALL PHONES
+   ========================================================= */
+
+@media (max-width: 520px) {
+
+  .hero-visual,
+  .map-visual,
+  .hero-map,
+  .landing-hero-visual {
+    border-radius: 14px;
+  }
+
+  .rtl-marquee {
+    animation-duration: 16s;
+  }
+}
+
+
+/* =========================================================
+   VERY SMALL PHONES
+   ========================================================= */
+
+@media (max-width: 380px) {
+
+  .stats-section .landing-stats {
+    gap: 9px;
+  }
+
+  .stats-section .landing-stat,
+  .stats-section .stat-card {
+    height: 104px;
+
+    min-height: 104px;
+
+    padding: 13px 11px;
+  }
+
+  .stats-section .landing-stat strong,
+  .stats-section .stat-card strong,
+  .stats-section .stat-number,
+  .stats-section .stat-value,
+  .stats-section .metric-value {
+    font-size: 19px;
+  }
+
+  .stats-section .landing-stat span,
+  .stats-section .stat-card span {
+    font-size: 7.5px;
+
+    letter-spacing: 0.07em;
+  }
+}
+
+
+/* =========================================================
+   REDUCED MOTION
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
