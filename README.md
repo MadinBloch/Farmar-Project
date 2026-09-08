@@ -1,6 +1,6 @@
-# Haasil
+# Farmly
 
-Haasil is a premium market-linkage prototype for farmers, FPOs, and produce buyers. It combines nearby price discovery, transparent offers, lot matching, logistics, settlement tracking, and mock AI guidance in one workflow.
+Farmly is a premium market-linkage prototype for farmers, FPOs, and produce buyers. It combines nearby price discovery, transparent offers, lot matching, logistics, settlement tracking, and mock AI guidance in one workflow.
 
 The app supports Supabase authentication and marketplace persistence when environment variables are configured. Without Supabase credentials it remains usable in demo mode with local mock data.
 

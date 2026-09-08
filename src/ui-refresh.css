@@ -1,5 +1,5 @@
 /* =========================================================
-   FIRMLY — VISUAL SYSTEM
+   FARMLY — VISUAL SYSTEM
    UI / Animation only
    Existing application content and logic untouched
    ========================================================= */
@@ -10,38 +10,38 @@
    ========================================================= */
 
 :root {
-  --firmly-green: #176b45;
-  --firmly-green-dark: #0d3d2b;
-  --firmly-green-soft: #4caf50;
+  --farmly-green: #176b45;
+  --farmly-green-dark: #0d3d2b;
+  --farmly-green-soft: #4caf50;
 
-  --firmly-gold: #b77a25;
-  --firmly-gold-bright: #e7a928;
+  --farmly-gold: #b77a25;
+  --farmly-gold-bright: #e7a928;
 
-  --firmly-paper: #f7f9f4;
-  --firmly-white: #ffffff;
+  --farmly-paper: #f7f9f4;
+  --farmly-white: #ffffff;
 
-  --firmly-ink: #1f2933;
-  --firmly-muted: #64756d;
+  --farmly-ink: #1f2933;
+  --farmly-muted: #64756d;
 
-  --firmly-line: #dce3dd;
+  --farmly-line: #dce3dd;
 
-  --firmly-card:
+  --farmly-card:
     linear-gradient(
       145deg,
       rgba(255, 255, 255, 0.96),
       rgba(246, 248, 243, 0.9)
     );
 
-  --firmly-shadow-sm:
+  --farmly-shadow-sm:
     0 4px 16px rgba(13, 61, 43, 0.07);
 
-  --firmly-shadow-md:
+  --farmly-shadow-md:
     0 14px 38px rgba(13, 61, 43, 0.12);
 
-  --firmly-shadow-lg:
+  --farmly-shadow-lg:
     0 24px 70px rgba(13, 61, 43, 0.16);
 
-  --firmly-ease:
+  --farmly-ease:
     cubic-bezier(0.22, 1, 0.36, 1);
 }
 
@@ -56,7 +56,7 @@ html {
 
 body {
   overflow-x: hidden;
-  background: var(--firmly-paper);
+  background: var(--farmly-paper);
 }
 
 #root {
@@ -69,7 +69,7 @@ body {
 
 ::selection {
   background: rgba(23, 107, 69, 0.18);
-  color: var(--firmly-green-dark);
+  color: var(--farmly-green-dark);
 }
 
 
@@ -94,10 +94,10 @@ textarea:focus-visible {
 .page-shell,
 .onboarding-page,
 .dashboard-page {
-  animation: firmlyPageIn 700ms var(--firmly-ease) both;
+  animation: farmlyPageIn 700ms var(--farmly-ease) both;
 }
 
-@keyframes firmlyPageIn {
+@keyframes farmlyPageIn {
   from {
     opacity: 0;
     transform: translateY(14px);
@@ -117,7 +117,7 @@ textarea:focus-visible {
 .brand-mark,
 .landing-brand {
   transition:
-    transform 220ms var(--firmly-ease),
+    transform 220ms var(--farmly-ease),
     opacity 220ms ease;
 }
 
@@ -145,7 +145,7 @@ textarea:focus-visible {
 
   transition:
     color 200ms ease,
-    transform 200ms var(--firmly-ease);
+    transform 200ms var(--farmly-ease);
 }
 
 .topnav a::after {
@@ -161,13 +161,13 @@ textarea:focus-visible {
 
   border-radius: 999px;
 
-  background: var(--firmly-gold);
+  background: var(--farmly-gold);
 
   transform: scaleX(0);
   transform-origin: center;
 
   transition:
-    transform 240ms var(--firmly-ease);
+    transform 240ms var(--farmly-ease);
 }
 
 .topnav a:hover {
@@ -189,7 +189,7 @@ textarea:focus-visible {
   min-height: 44px;
 
   transition:
-    transform 180ms var(--firmly-ease),
+    transform 180ms var(--farmly-ease),
     box-shadow 180ms ease,
     background-color 180ms ease,
     border-color 180ms ease;
@@ -217,7 +217,7 @@ textarea:focus-visible {
   transform: translateX(-120%);
 
   transition:
-    transform 650ms var(--firmly-ease);
+    transform 650ms var(--farmly-ease);
 
   pointer-events: none;
 }
@@ -326,10 +326,10 @@ textarea:focus-visible {
   transform-origin: center;
 
   animation:
-    firmlyRoute 5s ease-in-out infinite alternate;
+    farmlyRoute 5s ease-in-out infinite alternate;
 }
 
-@keyframes firmlyRoute {
+@keyframes farmlyRoute {
   from {
     opacity: 0.42;
   }
@@ -350,10 +350,10 @@ textarea:focus-visible {
   transform-origin: center bottom;
 
   animation:
-    firmlyMarker 3s ease-in-out infinite;
+    farmlyMarker 3s ease-in-out infinite;
 }
 
-@keyframes firmlyMarker {
+@keyframes farmlyMarker {
   0%,
   100% {
     transform: translateY(0);
@@ -373,11 +373,11 @@ textarea:focus-visible {
 .map-offer-card,
 .market-offer-card {
   animation:
-    firmlyOfferFloat 4s ease-in-out infinite,
-    firmlyOfferGlow 4s ease-in-out infinite;
+    farmlyOfferFloat 4s ease-in-out infinite,
+    farmlyOfferGlow 4s ease-in-out infinite;
 }
 
-@keyframes firmlyOfferFloat {
+@keyframes farmlyOfferFloat {
   0%,
   100% {
     transform: translate3d(0, 0, 0);
@@ -388,7 +388,7 @@ textarea:focus-visible {
   }
 }
 
-@keyframes firmlyOfferGlow {
+@keyframes farmlyOfferGlow {
   0%,
   100% {
     box-shadow:
@@ -433,10 +433,10 @@ textarea:focus-visible {
     0 0 0 5px rgba(120, 213, 139, 0.1);
 
   animation:
-    firmlyPulse 1.8s ease-in-out infinite;
+    farmlyPulse 1.8s ease-in-out infinite;
 }
 
-@keyframes firmlyPulse {
+@keyframes farmlyPulse {
   0%,
   100% {
     transform: scale(0.85);
@@ -529,7 +529,7 @@ textarea:focus-visible {
   align-items: center;
 
   animation:
-    firmlyMarquee 24s linear infinite;
+    farmlyMarquee 24s linear infinite;
 
   will-change: transform;
 }
@@ -538,7 +538,7 @@ textarea:focus-visible {
   animation-play-state: paused;
 }
 
-@keyframes firmlyMarquee {
+@keyframes farmlyMarquee {
   from {
     transform: translateX(0);
   }
@@ -556,7 +556,7 @@ textarea:focus-visible {
 .rtl-marquee span {
   transition:
     opacity 180ms ease,
-    transform 180ms var(--firmly-ease);
+    transform 180ms var(--farmly-ease);
 }
 
 .rtl-marquee a:hover,
@@ -736,7 +736,7 @@ textarea:focus-visible {
     inset 0 1px 0 rgba(255, 255, 255, 0.9);
 
   transition:
-    transform 260ms var(--firmly-ease),
+    transform 260ms var(--farmly-ease),
     box-shadow 260ms ease,
     border-color 260ms ease,
     background 260ms ease;
@@ -763,7 +763,7 @@ textarea:focus-visible {
     0 0 4px 4px;
 
   background:
-    var(--firmly-gold);
+    var(--farmly-gold);
 
   opacity: 0.9;
 }
@@ -798,7 +798,7 @@ textarea:focus-visible {
   pointer-events: none;
 
   transition:
-    transform 350ms var(--firmly-ease);
+    transform 350ms var(--farmly-ease);
 }
 
 
@@ -923,7 +923,7 @@ textarea:focus-visible {
   overflow: hidden;
 
   transition:
-    transform 260ms var(--firmly-ease),
+    transform 260ms var(--farmly-ease),
     box-shadow 260ms ease,
     background-color 260ms ease;
 }
@@ -947,14 +947,14 @@ textarea:focus-visible {
   pointer-events: none;
 
   transition:
-    transform 400ms var(--firmly-ease);
+    transform 400ms var(--farmly-ease);
 }
 
 .stats-grid .stat-card:hover {
   transform: translateY(-5px);
 
   box-shadow:
-    var(--firmly-shadow-md);
+    var(--farmly-shadow-md);
 }
 
 .stats-grid .stat-card:hover::after {
@@ -976,10 +976,10 @@ textarea:focus-visible {
   letter-spacing: -0.035em;
 
   animation:
-    firmlyNumberIn 800ms var(--firmly-ease) both;
+    farmlyNumberIn 800ms var(--farmly-ease) both;
 }
 
-@keyframes firmlyNumberIn {
+@keyframes farmlyNumberIn {
   from {
     opacity: 0;
 
@@ -1010,7 +1010,7 @@ textarea:focus-visible {
 .match-card,
 .price-row {
   transition:
-    transform 240ms var(--firmly-ease),
+    transform 240ms var(--farmly-ease),
     box-shadow 240ms ease,
     border-color 240ms ease;
 }
@@ -1025,7 +1025,7 @@ textarea:focus-visible {
   transform: translateY(-3px);
 
   box-shadow:
-    var(--firmly-shadow-md);
+    var(--farmly-shadow-md);
 }
 
 
@@ -1053,7 +1053,7 @@ input:focus,
 select:focus,
 textarea:focus {
   border-color:
-    var(--firmly-green);
+    var(--farmly-green);
 
   box-shadow:
     0 0 0 4px rgba(23, 107, 69, 0.09);
@@ -1087,10 +1087,10 @@ textarea:focus {
     rgba(76, 175, 80, 0.08);
 
   animation:
-    firmlyAiOrb 6s ease-in-out infinite;
+    farmlyAiOrb 6s ease-in-out infinite;
 }
 
-@keyframes firmlyAiOrb {
+@keyframes farmlyAiOrb {
   0%,
   100% {
     transform: scale(0.9);
@@ -1110,10 +1110,10 @@ textarea:focus {
 .success-card,
 .status-success {
   animation:
-    firmlySuccessIn 500ms var(--firmly-ease) both;
+    farmlySuccessIn 500ms var(--farmly-ease) both;
 }
 
-@keyframes firmlySuccessIn {
+@keyframes farmlySuccessIn {
   from {
     opacity: 0;
 
@@ -1139,10 +1139,10 @@ textarea:focus {
 .toast,
 .notification-toast {
   animation:
-    firmlyToastIn 450ms var(--firmly-ease) both;
+    farmlyToastIn 450ms var(--farmly-ease) both;
 }
 
-@keyframes firmlyToastIn {
+@keyframes farmlyToastIn {
   from {
     opacity: 0;
 
